@@ -16,6 +16,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), ProductsView {
 
+    val SCROLL_POSITION = "scroll_position"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -25,7 +27,6 @@ class MainActivity : AppCompatActivity(), ProductsView {
         presenter.bindView(this)
 
         var adapter = ProductsAdapter(this)
-
         val mLayoutManager = GridLayoutManager(this, 2)
         recyclerView.layoutManager = mLayoutManager
         recyclerView.itemAnimator = DefaultItemAnimator()
@@ -40,6 +41,19 @@ class MainActivity : AppCompatActivity(), ProductsView {
                     presenter.loadMore()
             }
         })
+
+        if (savedInstanceState == null) {
+            presenter.loadProducts()
+        } else {
+            (recyclerView.adapter as ProductsAdapter).products = presenter.getLoadedProductsList()
+            recyclerView.adapter.notifyDataSetChanged()
+            recyclerView.scrollToPosition(savedInstanceState.getInt(SCROLL_POSITION))
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putInt(SCROLL_POSITION, (recyclerView.layoutManager as GridLayoutManager).findFirstCompletelyVisibleItemPosition())
+        super.onSaveInstanceState(outState)
     }
 
     override fun onLoadProducts(products: List<Product>) {
