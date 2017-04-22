@@ -8,6 +8,7 @@ import java.lang.ref.WeakReference
 
 class ProductManager {
     lateinit var productsView: WeakReference<ProductsView>
+    var isLoading = false
     var currentPage = 1
     var pagesNumber = 1
 
@@ -17,9 +18,11 @@ class ProductManager {
     }
 
     fun loadProducts() {
+        isLoading = true
         DataManager.getTrendProducts(currentPage)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doFinally { isLoading = false }
                 .subscribe(
                         { products ->
                             currentPage = products.current_page
@@ -31,9 +34,11 @@ class ProductManager {
     }
 
     fun loadMore() {
+        isLoading = true
         DataManager.getTrendProducts(currentPage + 1)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doFinally { isLoading = false }
                 .subscribe(
                         { products ->
                             currentPage = products.current_page
@@ -44,6 +49,6 @@ class ProductManager {
                 )
     }
 
-    fun canLoadMore() = currentPage == pagesNumber
+    fun canLoadMore() = currentPage != pagesNumber
 
 }

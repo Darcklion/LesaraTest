@@ -11,6 +11,6 @@ interface API {
             @Query("app_token") app_token: String = "this_is_an_app_token",
             @Query("user_token") user_token: String = "63a12a8116814a9574842515378c93c64846fc3d0858def78388be37e127cd17",
             @Query("store_id") store_id: Int = 1,
-            @Query("page_number") page_number: Int = 1
+            @Query("page_override") page_number: Int
     ): Observable<TrendProductsResponse>
 }
