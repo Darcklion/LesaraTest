@@ -9,11 +9,9 @@ import java.lang.ref.WeakReference
 
 class ProductManager {
     lateinit var productsView: WeakReference<ProductsView>
-    private var products: ArrayList<Product> = ArrayList()
-    var isLoading = false
+    private var products: ArrayList<Product?> = ArrayList()
     var currentPage = 1
     var pagesNumber = 1
-    var scrollPosition: Int = 0
 
     fun bindView(view: ProductsView) {
         productsView = WeakReference(view)
@@ -22,11 +20,9 @@ class ProductManager {
     fun getLoadedProductsList() = products
 
     fun loadProducts() {
-        isLoading = true
         DataManager.getTrendProducts(currentPage)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doFinally { isLoading = false }
                 .subscribe(
                         { products ->
                             currentPage = products.current_page
@@ -34,16 +30,16 @@ class ProductManager {
                             this.products = ArrayList(products.products)
                             productsView.get()?.onLoadProducts(products.products)
                         },
-                        Throwable::printStackTrace
+                        { e ->
+                            productsView.get()?.onError(e)
+                        }
                 )
     }
 
     fun loadMore() {
-        isLoading = true
         DataManager.getTrendProducts(currentPage + 1)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doFinally { isLoading = false }
                 .subscribe(
                         { products ->
                             currentPage = products.current_page
@@ -51,7 +47,9 @@ class ProductManager {
                             this.products.addAll(ArrayList(products.products))
                             productsView.get()?.onLoadMore(products.products)
                         },
-                        Throwable::printStackTrace
+                        { e ->
+                            productsView.get()?.onError(e)
+                        }
                 )
     }
 
