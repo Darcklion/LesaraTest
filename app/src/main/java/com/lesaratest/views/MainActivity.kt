@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import com.lesaratest.App
 import com.lesaratest.R
 import com.lesaratest.models.Product
@@ -70,6 +71,8 @@ class MainActivity : AppCompatActivity(), ProductsView {
     }
 
     override fun onLoadProducts(products: List<Product>) {
+        recyclerView.visibility = View.VISIBLE
+        progressBar.visibility = View.GONE
         (recyclerView.adapter as ProductsAdapter).products = ArrayList(products)
         recyclerView.adapter.notifyDataSetChanged()
         isLoading = false
